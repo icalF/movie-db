@@ -2,6 +2,12 @@
 <manifest package="org.informatika.icalf.moviedatabase"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.READ_SYNC_SETTINGS"/>
+    <uses-permission
+        android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,12 +17,15 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity android:name=".DetailActivity">
         </activity>
+        <provider
+            android:authorities="org.informatika.icalf.moviedatabase"
+            android:name=".data.MovieProvider"
+            android:enabled="true"
+            android:exported="true"/>
     </application>
-
 </manifest>
