@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Base64;
-import android.util.Log;
 
 import org.informatika.icalf.moviedatabase.data.MovieContract;
 
@@ -25,6 +24,7 @@ import info.movito.themoviedbapi.model.core.MovieResultsPage;
  */
 public class FetchMovieTask extends AsyncTask<String, Void, Void> {
   private String key;
+  private final String LANG = "en";
   private final Context mContext;
 
   public FetchMovieTask(Context context) {
@@ -38,60 +38,68 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
     }
   }
 
-  private boolean DEBUG = true;
-
   @Override
   protected Void doInBackground(String... params) {
     TmdbMovies tmdbMovies = new TmdbApi(key).getMovies();
-    MovieResultsPage movieResultsPage = tmdbMovies.getPopularMovies("en", 1);
+    MovieResultsPage movieResultsPage = tmdbMovies.getPopularMovies(LANG, 1);
     List<MovieDb> list = movieResultsPage.getResults();
 
-    insertMovies(list);
+    updateMovies(list);
 
     return null;
   }
 
-  private void insertMovies(List<MovieDb> list) {
+  private void updateMovies(List<MovieDb> list) {
     for (MovieDb movie : list) {
       Cursor movieCursor = mContext.getContentResolver().query(
-              MovieContract.MovieEntry.CONTENT_URI,
-              new String[] { MovieContract.MovieEntry._ID },
-              MovieContract.MovieEntry._ID+ " = ?",
-              new String[] { Integer.toString(movie.getId()) },
+              MovieContract.MovieEntry.buildMovieUri(movie.getId()),
+              null,
+              null,
+              null,
               null);
 
-      if (!movieCursor.moveToFirst()) {
-        ContentValues movieValues = new ContentValues();
+      ContentValues movieValues = new ContentValues();
+      TmdbMovies tmdbMovies = new TmdbApi(key).getMovies();
+      movie = tmdbMovies.getMovie(movie.getId(), LANG);
 
-        movieValues.put(MovieContract.MovieEntry._ID, movie.getId());
-        movieValues.put(MovieContract.MovieEntry.COLUMMN_POSTER_URL, movie.getPosterPath());
-        movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, movie.getOverview());
-        movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, movie.getPopularity());
-        movieValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME, movie.getRuntime());
-        movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movie.getTitle());
-        movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE, movie.getVoteAverage());
-        movieValues.put(MovieContract.MovieEntry.COLUMN_YEAR, movie.getReleaseDate());
+      movieValues.put(MovieContract.MovieEntry._ID, movie.getId());
+      movieValues.put(MovieContract.MovieEntry.COLUMMN_POSTER_URL, movie.getPosterPath());
+      movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, movie.getOverview());
+      movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, movie.getPopularity());
+      movieValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME, movie.getRuntime());
+      movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movie.getTitle());
+      movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE, movie.getVoteAverage());
+      movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
 
-        mContext.getContentResolver().insert(
-              MovieContract.MovieEntry.CONTENT_URI,
-              movieValues
+      if (movieCursor != null && movieCursor.moveToFirst()) {
+        mContext.getContentResolver().update(
+                MovieContract.MovieEntry.buildMovieUri(movie.getId()),
+                movieValues,
+                null,
+                null
         );
 
-        insertReviews(movie.getId());
-        insertTrailers(movie.getId(), movie.getVideos());
-        Log.d("insertReviews: ", movieValues.getAsString(MovieContract.MovieEntry.COLUMN_TITLE));
+        movieCursor.close();
+      } else {
+        mContext.getContentResolver().insert(
+                MovieContract.MovieEntry.CONTENT_URI,
+                movieValues
+        );
+
+        updateReviews(movie.getId());
+        updateTrailers(movie.getId(), movie.getVideos());
       }
 
-      movieCursor.close();
     }
   }
 
-  private void insertTrailers(int movId, List<Video> videos) {
+  private void updateTrailers(int movId, List<Video> videos) {
+    // TODO : performing update trailers
     if (videos != null) {
       for (Video video : videos) {
         ContentValues trailerValues = new ContentValues();
-        trailerValues.put(MovieContract.TrailerEntry.COLUMMN_MOV_ID, movId);
         trailerValues.put(MovieContract.TrailerEntry.COLUMN_URL, video.getKey());
+        trailerValues.put(MovieContract.TrailerEntry.COLUMMN_MOV_ID, movId);
 
         mContext.getContentResolver().insert(
                 MovieContract.TrailerEntry.CONTENT_URI,
@@ -101,16 +109,18 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
     }
   }
 
-  private void insertReviews(int id) {
+  private void updateReviews(int id) {
+    // TODO : performing update reviews
     TmdbReviews tmdbReviews = new TmdbApi(key).getReviews();
-    TmdbReviews.ReviewResultsPage reviewResultsPage = tmdbReviews.getReviews(id, "en", 1);
+    TmdbReviews.ReviewResultsPage reviewResultsPage = tmdbReviews.getReviews(id, LANG, 1);
     List<Reviews> reviews = reviewResultsPage.getResults();
 
     if (reviews != null) {
       for (Reviews review : reviews) {
         ContentValues reviewValues = new ContentValues();
+        reviewValues.put(MovieContract.ReviewEntry._ID, review.getId());
         reviewValues.put(MovieContract.ReviewEntry.COLUMMN_MOV_ID, id);
-        reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, "'"+review.getAuthor()+"'");
+        reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, review.getAuthor());
         reviewValues.put(MovieContract.ReviewEntry.COLUMN_CONTENT, review.getContent());
         reviewValues.put(MovieContract.ReviewEntry.COLUMN_URL, review.getUrl());
 

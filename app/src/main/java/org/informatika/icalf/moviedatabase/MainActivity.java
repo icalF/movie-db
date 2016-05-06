@@ -16,17 +16,26 @@ import org.informatika.icalf.moviedatabase.data.MovieContract;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
   private MovieAdapter movieAdapter;
+  private CursorLoader cursor;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    this.deleteDatabase("tmdb.db");
+//    deleteDatabase("tmdb.db");
+  }
 
+  @Override
+  protected void onStart() {
+    super.onStart();
     GridView gv = (GridView) findViewById(R.id.movie_thumbnails);
     movieAdapter = new MovieAdapter(this, null, 0);
-    gv.setAdapter(movieAdapter);
-    gv.setOnScrollListener(new ScrollListener(this));
+    if (gv != null) {
+      gv.setAdapter(movieAdapter);
+    }
+
+    movieAdapter.notifyDataSetChanged();
+    getSupportLoaderManager().initLoader(0, null, this);
 
     FetchMovieTask weatherTask = new FetchMovieTask(this);
     weatherTask.execute();
@@ -34,15 +43,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//    String locationSetting = Utility.getPreferredLocation(getActivity());
     String sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-
-    return new CursorLoader(this,
+    cursor = new CursorLoader(this,
             MovieContract.MovieEntry.buildMoviePopulars(),
             null,
             null,
             null,
             sortOrder);
+    return cursor;
   }
 
   @Override

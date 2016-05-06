@@ -31,7 +31,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
           MovieContract.MovieEntry.COLUMMN_POSTER_URL + " TEXT NOT NULL, " +
           MovieContract.MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
 
-          MovieContract.MovieEntry.COLUMN_YEAR + " INTEGER NOT NULL, " +
+          MovieContract.MovieEntry.COLUMN_RELEASE_DATE + " STRING NOT NULL, " +
           MovieContract.MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
           MovieContract.MovieEntry.COLUMN_VOTE + " REAL NOT NULL, " +
           MovieContract.MovieEntry.COLUMN_POPULARITY + " REAL NOT NULL, " +
@@ -40,19 +40,17 @@ public class MovieDbHelper extends SQLiteOpenHelper {
     db.execSQL(SQL_CREATE_MOVIE_TABLE);
 
     final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + MovieContract.TrailerEntry.TABLE_NAME + " (" +
-          MovieContract.TrailerEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-
-          MovieContract.TrailerEntry.COLUMN_URL + " TEXT NOT NULL, " +
+          MovieContract.TrailerEntry.COLUMN_URL + " TEXT PRIMARY KEY, " +
           MovieContract.TrailerEntry.COLUMMN_MOV_ID + " INTEGER NOT NULL, " +
 
           // Set up the location column as a foreign key to movie table.
           "FOREIGN KEY (" + MovieContract.TrailerEntry.COLUMMN_MOV_ID + ") REFERENCES " +
-          MovieContract.TrailerEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + ") )";
+          MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + ") )";
 
     db.execSQL(SQL_CREATE_TRAILER_TABLE);
 
     final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + MovieContract.ReviewEntry.TABLE_NAME + " (" +
-            MovieContract.ReviewEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            MovieContract.ReviewEntry._ID + " TEXT PRIMARY KEY , " +
 
             MovieContract.ReviewEntry.COLUMN_URL + " TEXT NOT NULL, " +
             MovieContract.ReviewEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
@@ -61,7 +59,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
             // Set up the location column as a foreign key to movie table.
             "FOREIGN KEY (" + MovieContract.ReviewEntry.COLUMMN_MOV_ID + ") REFERENCES " +
-            MovieContract.ReviewEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + ") )";
+            MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + ") )";
 
     db.execSQL(SQL_CREATE_REVIEW_TABLE);
   }

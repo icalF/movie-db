@@ -21,8 +21,8 @@ public class MovieAdapter extends CursorAdapter {
   }
 
   @Override
-  public View newView(final Context context, final Cursor cursor, ViewGroup parent) {
-    ImageView view = new ImageView (context)
+  public View newView(Context context, Cursor cursor, ViewGroup parent) {
+    return new ImageView (context)
     {
       @Override
       protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -30,25 +30,25 @@ public class MovieAdapter extends CursorAdapter {
         setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth());
       }
     };
+  }
+
+  @Override
+  public void bindView(View view, final Context context, final Cursor cursor) {
+    int posterId = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMMN_POSTER_URL);
+    String posterURL = MovieContract.getPosterURL(cursor.getString(posterId));
+    final int position = cursor.getPosition();
 
     view.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        int id = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMMN_POSTER_URL);
+        cursor.moveToPosition(position);
+        int id = cursor.getColumnIndex(MovieContract.MovieEntry._ID);
 
         Intent intent = new Intent(context, DetailActivity.class);
-        intent.putExtra("film", cursor.getLong(id));
+        intent.putExtra("film", cursor.getInt(id));
         context.startActivity(intent);
       }
     });
-
-    return view;
-  }
-
-  @Override
-  public void bindView(View view, Context context, Cursor cursor) {
-    int posterId = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMMN_POSTER_URL);
-    String posterURL = cursor.getString(posterId);
 
     // Trigger the download of the URL asynchronously into the image view.
     Picasso.with(context) //
