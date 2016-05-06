@@ -26,6 +26,14 @@ public class MovieContract {
     return "http://image.tmdb.org/t/p/w185" + path;
   }
 
+  public static String getVideoURL(String key) {
+    return "http://www.youtube.com/watch?v=" + key;
+  }
+
+  public static String getThumbnailURL(String key) {
+    return "http://img.youtube.com/vi/" + key + "/mqdefault.jpg";
+  }
+
   public static long getIdFromUri(Uri uri) {
     return Long.parseLong(uri.getPathSegments().get(1));
   }
