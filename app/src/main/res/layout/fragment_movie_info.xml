@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DetailActivity">
+    tools:context=".DetailActivity"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Title"
-        android:id="@+id/movie_title"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:id="@+id/movie_title"/>
 
     <LinearLayout
         android:orientation="horizontal"
         android:id="@+id/middle"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/movie_title">
+        android:layout_height="200dp">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -73,16 +69,6 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Lorem ipsum dolor sit amet"
-        android:id="@+id/overview"
-        android:layout_below="@+id/middle"/>
+        android:id="@+id/overview"/>
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:id="@+id/line"
-        android:background="#000000"
-        android:layout_below="@+id/overview"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"/>
-
-</RelativeLayout>
+</LinearLayout>

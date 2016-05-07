@@ -16,7 +16,7 @@ import android.widget.GridView;
 import org.informatika.icalf.moviedatabase.data.MovieContract;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Created by icalF on 5/6/2016.
  */
 public class DashboardFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 

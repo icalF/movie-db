@@ -17,6 +17,7 @@ public class DetailActivity extends AppCompatActivity {
       getSupportFragmentManager().beginTransaction()
               .add(R.id.container1, new MovieInfoFragment())
               .add(R.id.container2, new MovieTrailersFragment())
+              .add(R.id.container3, new MovieReviewsFragment())
               .commit();
     }
   }

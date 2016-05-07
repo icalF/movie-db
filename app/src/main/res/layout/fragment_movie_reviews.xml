@@ -10,12 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/trailers"
-        android:id="@+id/trailer_title"/>
+        android:text="@string/reviews"
+        android:id="@+id/review_title"/>
 
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/trailer"/>
+        android:id="@+id/review"/>
 
 </LinearLayout>

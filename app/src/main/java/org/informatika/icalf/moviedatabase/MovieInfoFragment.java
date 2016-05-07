@@ -23,7 +23,6 @@ import org.informatika.icalf.moviedatabase.data.MovieContract;
 public class MovieInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
   private int id;
-  private TrailerAdapter trailerAdapter;
   private CursorLoader cursorLoader;
 
   static final int COL_TITLE = 4;
@@ -61,23 +60,16 @@ public class MovieInfoFragment extends Fragment implements LoaderManager.LoaderC
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     cursorLoader = new CursorLoader(getActivity(),
-            MovieContract.MovieEntry.buildMovieTrailers(this.id),
-            null,
-            null,
-            null,
-            null);
+                  MovieContract.MovieEntry.buildMovieUri(this.id),
+                  null,
+                  null,
+                  null,
+                  null);
     return cursorLoader;
   }
 
   @Override
-  public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-    Cursor cursor = getActivity().getContentResolver().query(
-            MovieContract.MovieEntry.buildMovieUri(id),
-            null,
-            MovieContract.MovieEntry._ID,
-            new String[] {String.valueOf(id)},
-            null
-    );
+  public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
     if (cursor != null) {
       cursor.moveToFirst();
     }
@@ -105,8 +97,6 @@ public class MovieInfoFragment extends Fragment implements LoaderManager.LoaderC
     if (runtime != null) {
       runtime.setText(Integer.toString(cursor.getInt(COL_RUTIME)) + " min");
     }
-
-    cursor.close();
   }
 
   @Override

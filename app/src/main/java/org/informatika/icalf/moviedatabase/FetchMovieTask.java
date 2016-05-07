@@ -60,7 +60,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
       ContentValues movieValues = new ContentValues();
       TmdbMovies tmdbMovies = new TmdbApi(key).getMovies();
-      movie = tmdbMovies.getMovie(movie.getId(), LANG);
+      movie = tmdbMovies.getMovie(movie.getId(), LANG, TmdbMovies.MovieMethod.videos);
 
       movieValues.put(MovieContract.MovieEntry._ID, movie.getId());
       movieValues.put(MovieContract.MovieEntry.COLUMMN_POSTER_URL, movie.getPosterPath());
@@ -98,7 +98,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
     if (videos != null) {
       for (Video video : videos) {
         ContentValues trailerValues = new ContentValues();
-        trailerValues.put(MovieContract.TrailerEntry.COLUMN_URL, video.getKey());
+        trailerValues.put(MovieContract.TrailerEntry._ID, video.getKey());
         trailerValues.put(MovieContract.TrailerEntry.COLUMMN_MOV_ID, movId);
 
         mContext.getContentResolver().insert(
@@ -122,7 +122,6 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         reviewValues.put(MovieContract.ReviewEntry.COLUMMN_MOV_ID, id);
         reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, review.getAuthor());
         reviewValues.put(MovieContract.ReviewEntry.COLUMN_CONTENT, review.getContent());
-        reviewValues.put(MovieContract.ReviewEntry.COLUMN_URL, review.getUrl());
 
         mContext.getContentResolver().insert(
                 MovieContract.ReviewEntry.CONTENT_URI,

@@ -16,18 +16,18 @@ import android.widget.ListView;
 
 import org.informatika.icalf.moviedatabase.data.MovieContract;
 
-/**
- * Created by icalF on 5/6/2016.
- */
-public class MovieTrailersFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+/**
+ * Created by icalF on 5/7/2016.
+ */
+public class MovieReviewsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+
+  private ReviewAdapter reviewAdapter;
   private CursorLoader cursorLoader;
   private int id;
 
-  static final int COL_URL = 0;
-  private TrailerAdapter trailerAdapter;
-
-  public MovieTrailersFragment() {
+  public MovieReviewsFragment() {
     // Required empty public constructor
   }
 
@@ -35,19 +35,19 @@ public class MovieTrailersFragment extends Fragment implements LoaderManager.Loa
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_movie_trailers, container, false);
+    return inflater.inflate(R.layout.fragment_movie_reviews, container, false);
   }
 
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    ListView lv = (ListView) getActivity().findViewById(R.id.trailer);
-    trailerAdapter = new TrailerAdapter(getActivity(), null, 0);
+    ListView lv = (ListView) getActivity().findViewById(R.id.review);
+    reviewAdapter = new ReviewAdapter(getActivity(), null, 0);
     if (lv != null) {
-      lv.setAdapter(trailerAdapter);
+      lv.setAdapter(reviewAdapter);
     }
 
-    trailerAdapter.notifyDataSetChanged();
-    getActivity().getSupportLoaderManager().initLoader(1, null, this);
+    reviewAdapter.notifyDataSetChanged();
+    getActivity().getSupportLoaderManager().initLoader(2, null, this);
     super.onActivityCreated(savedInstanceState);
   }
 
@@ -62,7 +62,7 @@ public class MovieTrailersFragment extends Fragment implements LoaderManager.Loa
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     cursorLoader = new CursorLoader(getActivity(),
-            MovieContract.MovieEntry.buildMovieTrailers(this.id),
+            MovieContract.MovieEntry.buildMovieReviews(this.id),
             null,
             null,
             null,
@@ -72,11 +72,12 @@ public class MovieTrailersFragment extends Fragment implements LoaderManager.Loa
 
   @Override
   public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-    trailerAdapter.swapCursor(data);
+    reviewAdapter.swapCursor(data);
   }
 
   @Override
   public void onLoaderReset(Loader<Cursor> loader) {
-    trailerAdapter.swapCursor(null);
+    reviewAdapter.swapCursor(null);
   }
+
 }

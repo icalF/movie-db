@@ -40,7 +40,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
     db.execSQL(SQL_CREATE_MOVIE_TABLE);
 
     final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + MovieContract.TrailerEntry.TABLE_NAME + " (" +
-          MovieContract.TrailerEntry.COLUMN_URL + " TEXT PRIMARY KEY, " +
+          MovieContract.TrailerEntry._ID + " TEXT PRIMARY KEY, " +
           MovieContract.TrailerEntry.COLUMMN_MOV_ID + " INTEGER NOT NULL, " +
 
           // Set up the location column as a foreign key to movie table.
@@ -52,7 +52,6 @@ public class MovieDbHelper extends SQLiteOpenHelper {
     final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + MovieContract.ReviewEntry.TABLE_NAME + " (" +
             MovieContract.ReviewEntry._ID + " TEXT PRIMARY KEY , " +
 
-            MovieContract.ReviewEntry.COLUMN_URL + " TEXT NOT NULL, " +
             MovieContract.ReviewEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
             MovieContract.ReviewEntry.COLUMN_CONTENT + " TEXT NOT NULL, " +
             MovieContract.ReviewEntry.COLUMMN_MOV_ID + " INTEGER NOT NULL, " +

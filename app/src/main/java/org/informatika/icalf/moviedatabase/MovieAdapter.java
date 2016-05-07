@@ -37,16 +37,14 @@ public class MovieAdapter extends CursorAdapter {
 
   @Override
   public void bindView(View view, final Context context, final Cursor cursor) {
+    final int id = cursor.getInt(COL_ID);
     String posterURL = MovieContract.getPosterURL(cursor.getString(COL_POSTER));
-    final int position = cursor.getPosition();
 
     view.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        cursor.moveToPosition(position);
-
         Intent intent = new Intent(context, DetailActivity.class);
-        intent.putExtra("film", cursor.getInt(COL_ID));
+        intent.putExtra("film", id);
         context.startActivity(intent);
       }
     });

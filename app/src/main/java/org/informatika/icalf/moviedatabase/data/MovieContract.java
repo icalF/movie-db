@@ -72,7 +72,6 @@ public class MovieContract {
     // Columns
     public static final String COLUMMN_MOV_ID = "id_movie";
     public static final String COLUMN_AUTHOR = "author";
-    public static final String COLUMN_URL = "url";
     public static final String COLUMN_CONTENT = "content";
 
     public static final Uri CONTENT_URI =
@@ -80,8 +79,6 @@ public class MovieContract {
 
     public static final String CONTENT_TYPE =
             ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
-    public static final String CONTENT_ITEM_TYPE =
-            ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
 
     public static Uri buildReviewUri(long id) {
       return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -93,15 +90,12 @@ public class MovieContract {
 
     // Columns
     public static final String COLUMMN_MOV_ID = "id_movie";
-    public static final String COLUMN_URL = "url";
 
     public static final Uri CONTENT_URI =
             BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILER).build();
 
     public static final String CONTENT_TYPE =
             ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILER;
-    public static final String CONTENT_ITEM_TYPE =
-            ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILER;
 
     public static Uri buildTrailerUri(long id) {
       return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -125,8 +119,6 @@ public class MovieContract {
 
     public static final String CONTENT_TYPE =
             ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE;
-    public static final String CONTENT_ITEM_TYPE =
-            ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE;
 
     public static Uri buildMovieUri(long id) {
       return ContentUris.withAppendedId(CONTENT_URI, id);
