@@ -1,16 +1,17 @@
 package org.informatika.icalf.moviedatabase;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -20,10 +21,12 @@ import org.informatika.icalf.moviedatabase.data.MovieContract;
 /**
  * Created by icalF on 5/6/2016.
  */
-public class MovieInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MovieInfoFragment extends Fragment {
 
-  private int id;
-  private CursorLoader cursorLoader;
+  public static final String MOVIE_ID = "ID";
+  private static final int COL_URL = 0;
+  private static final int COL_AUTHOR = 1;
+  private static final int COL_CONTENT = 2;
 
   static final int COL_TITLE = 4;
   static final int COL_YEAR = 3;
@@ -32,73 +35,130 @@ public class MovieInfoFragment extends Fragment implements LoaderManager.LoaderC
   static final int COL_VOTE = 5;
   static final int COL_RUTIME = 7;
 
+  private int id = 0;
+  private CursorLoader cursorLoader;
+
   public MovieInfoFragment() {
     // Required empty public constructor
   }
 
   @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
-    Intent intent = getActivity().getIntent();
-    id = intent.getIntExtra("film", 0);
-  }
-
-  @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
+    Bundle arguments = getArguments();
+    if (arguments != null) {
+      id = arguments.getInt(MOVIE_ID);
+    }
+
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_movie_info, container, false);
+    View view = inflater.inflate(R.layout.fragment_movie_detail, container, false);
+    ContentResolver contentResolver = getActivity().getContentResolver();
+
+    Cursor cursor = contentResolver.query(
+            MovieContract.MovieEntry.buildMovieUri(id),
+            null,
+            null,
+            null,
+            null,
+            null
+    );
+
+    // Load info detail
+    TextView title = (TextView) view.findViewById(R.id.movie_title);
+    TextView overview = (TextView) view.findViewById(R.id.overview);
+    TextView vote = (TextView) view.findViewById(R.id.vote);
+    TextView year = (TextView) view.findViewById(R.id.release_year);
+    ImageView poster = (ImageView) view.findViewById(R.id.movie_poster);
+    TextView runtime = (TextView) view.findViewById(R.id.runtime);
+
+    if (cursor.moveToFirst()) {
+      Picasso.with(getContext()).load(MovieContract.getPosterURL(cursor.getString(COL_POSTER))).into(poster);
+      if (title != null) {
+        title.setText(cursor.getString(COL_TITLE));
+      }
+      if (overview != null) {
+        overview.setText(cursor.getString(COL_OVERVIEW));
+      }
+      if (vote != null) {
+        vote.setText(Float.toString(cursor.getFloat(COL_VOTE)) + " / 10.0");
+      }
+      if (year != null) {
+        year.setText(MovieContract.getYear(cursor.getString(COL_YEAR)));
+      }
+      if (runtime != null) {
+        runtime.setText(Integer.toString(cursor.getInt(COL_RUTIME)) + " min");
+      }
+    }
+
+    // Load trailers
+    LinearLayout lv = (LinearLayout) view.findViewById(R.id.trailer);
+    cursor = contentResolver.query(
+            MovieContract.MovieEntry.buildMovieTrailers(id),
+            null,
+            null,
+            null,
+            null
+    );
+
+    if (cursor != null) {
+      while (cursor.moveToNext()) {
+        ImageView imageView = new ImageView(getContext()) {
+          @Override
+          protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth());
+          }
+        };
+
+        final String key = cursor.getString(COL_URL);
+        String thumbnailURL = MovieContract.getThumbnailURL(key);
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(MovieContract.getVideoURL(key)));
+            getContext().startActivity(intent);
+          }
+        });
+
+        // Trigger the download of the URL asynchronously into the image view.
+        Picasso.with(getContext()) //
+                .load(thumbnailURL) //
+                .into(imageView);
+
+        lv.addView(imageView);
+      }
+    }
+
+    // Load reviews
+    lv = (LinearLayout) view.findViewById(R.id.review);
+    cursor = contentResolver.query(
+            MovieContract.MovieEntry.buildMovieReviews(id),
+            null,
+            null,
+            null,
+            null
+    );
+
+    if (cursor != null) {
+      while (cursor.moveToNext()) {
+        LinearLayout linearLayout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.list_review, null);
+        TextView author = (TextView) linearLayout.findViewById(R.id.author);
+        TextView content = (TextView) linearLayout.findViewById(R.id.content);
+
+        author.setText(cursor.getString(COL_AUTHOR));
+        content.setText(cursor.getString(COL_CONTENT));
+
+        lv.addView(linearLayout);
+      }
+    }
+    cursor.close();
+
+    return view;
   }
 
   @Override
   public void onActivityCreated(Bundle savedInstanceState) {
-    getLoaderManager().initLoader(0, null, this);
     super.onActivityCreated(savedInstanceState);
   }
-
-  @Override
-  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    cursorLoader = new CursorLoader(getActivity(),
-                  MovieContract.MovieEntry.buildMovieUri(this.id),
-                  null,
-                  null,
-                  null,
-                  null);
-    return cursorLoader;
-  }
-
-  @Override
-  public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-    if (cursor != null) {
-      cursor.moveToFirst();
-    }
-
-    TextView title = (TextView) getActivity().findViewById(R.id.movie_title);
-    TextView overview = (TextView) getActivity().findViewById(R.id.overview);
-    TextView vote = (TextView) getActivity().findViewById(R.id.vote);
-    TextView year = (TextView) getActivity().findViewById(R.id.release_year);
-    ImageView poster = (ImageView) getActivity().findViewById(R.id.movie_poster);
-    TextView runtime = (TextView) getActivity().findViewById(R.id.runtime);
-
-    Picasso.with(getActivity()).load(MovieContract.getPosterURL(cursor.getString(COL_POSTER))).into(poster);
-    if (title != null) {
-      title.setText(cursor.getString(COL_TITLE));
-    }
-    if (overview != null) {
-      overview.setText(cursor.getString(COL_OVERVIEW));
-    }
-    if (vote != null) {
-      vote.setText(Float.toString(cursor.getFloat(COL_VOTE)) + " / 10.0");
-    }
-    if (year != null) {
-      year.setText(MovieContract.getYear(cursor.getString(COL_YEAR)));
-    }
-    if (runtime != null) {
-      runtime.setText(Integer.toString(cursor.getInt(COL_RUTIME)) + " min");
-    }
-  }
-
-  @Override
-  public void onLoaderReset(Loader<Cursor> loader) { }
 }

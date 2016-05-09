@@ -1,7 +1,6 @@
 package org.informatika.icalf.moviedatabase;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
 import android.view.View;
@@ -39,15 +38,6 @@ public class MovieAdapter extends CursorAdapter {
   public void bindView(View view, final Context context, final Cursor cursor) {
     final int id = cursor.getInt(COL_ID);
     String posterURL = MovieContract.getPosterURL(cursor.getString(COL_POSTER));
-
-    view.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        Intent intent = new Intent(context, DetailActivity.class);
-        intent.putExtra("film", id);
-        context.startActivity(intent);
-      }
-    });
 
     // Trigger the download of the URL asynchronously into the image view.
     Picasso.with(context) //

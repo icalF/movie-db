@@ -8,15 +8,17 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Large Text"
-        android:id="@+id/content"/>
+        android:id="@+id/content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="author"
-        android:id="@+id/author"/>
+        android:id="@+id/author"
+        android:textSize="18dp"
+        android:gravity="right"/>
 
 </LinearLayout>
