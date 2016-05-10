@@ -37,6 +37,9 @@ public class MovieContract {
   public static long getIdFromUri(Uri uri) {
     return Long.parseLong(uri.getPathSegments().get(1));
   }
+  public static String getIdSFromUri(Uri uri) {
+    return (uri.getPathSegments().get(1));
+  }
 
   public static String getYear(String s) {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -80,8 +83,10 @@ public class MovieContract {
     public static final String CONTENT_TYPE =
             ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
 
-    public static Uri buildReviewUri(long id) {
-      return ContentUris.withAppendedId(CONTENT_URI, id);
+    public static Uri buildReviewUri(String id) {
+      return CONTENT_URI.buildUpon()
+              .appendPath(id)
+              .build();
     }
   }
 
@@ -97,8 +102,10 @@ public class MovieContract {
     public static final String CONTENT_TYPE =
             ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILER;
 
-    public static Uri buildTrailerUri(long id) {
-      return ContentUris.withAppendedId(CONTENT_URI, id);
+    public static Uri buildTrailerUri(String id) {
+      return CONTENT_URI.buildUpon()
+              .appendPath(id)
+              .build();
     }
   }
 

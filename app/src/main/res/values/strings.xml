@@ -13,4 +13,8 @@
     <string name="sharedpref">SunshinePrefs</string>
     <string name="popular">Popular</string>
     <string name="top_rated">Top Rated</string>
+    <string name="no_trailer">There is no trailer for this movie</string>
+    <string name="no_review">There is no review for this movie</string>
+    <string name="no_overview">There is no overview for this movie</string>
+    <string name="author">author</string>
 </resources>

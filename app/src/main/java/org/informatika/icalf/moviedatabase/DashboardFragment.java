@@ -1,14 +1,20 @@
 package org.informatika.icalf.moviedatabase;
 
 
+import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -21,6 +27,7 @@ import org.informatika.icalf.moviedatabase.data.MovieContract;
  */
 public class DashboardFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
   static final int COL_ID = 0;
+  static final int THUMBNAILS_LOADER = 0;
 
   private MovieAdapter movieAdapter;
   private CursorLoader cursor;
@@ -29,8 +36,32 @@ public class DashboardFragment extends Fragment implements LoaderManager.LoaderC
     void onItemSelected(Integer movId);
   }
 
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setHasOptionsMenu(true);
+  }
+
   public DashboardFragment() {
     // Required empty public constructor
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int id = item.getItemId();
+    getActivity().getSharedPreferences(getString(R.string.sharedpref), Context.MODE_PRIVATE)
+            .edit()
+            .putInt("mode", id)
+            .commit();
+    getLoaderManager().restartLoader(THUMBNAILS_LOADER, null, this);
+
+    return super.onOptionsItemSelected(item);
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.method, menu);
+    super.onCreateOptionsMenu(menu, inflater);
   }
 
   @Override
@@ -64,19 +95,25 @@ public class DashboardFragment extends Fragment implements LoaderManager.LoaderC
 
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    getLoaderManager().initLoader(0, null, this);
+    getLoaderManager().initLoader(THUMBNAILS_LOADER, null, this);
     super.onActivityCreated(savedInstanceState);
   }
 
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    String sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-    cursor = new CursorLoader(getActivity(),
-            MovieContract.MovieEntry.buildMoviePopulars(),
+    int mode = getContext()
+            .getSharedPreferences(getString(R.string.sharedpref), Context.MODE_PRIVATE)
+            .getInt("mode", 0);
+    Uri reqUri = (mode == R.id.popular ?
+            MovieContract.MovieEntry.buildMoviePopulars() :
+            MovieContract.MovieEntry.buildMovieTopRated());
+
+    cursor = new CursorLoader(getContext(),
+            reqUri,
             null,
             null,
             null,
-            sortOrder);
+            null);
     return cursor;
   }
 

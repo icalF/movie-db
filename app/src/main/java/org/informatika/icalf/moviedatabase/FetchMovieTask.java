@@ -41,16 +41,18 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
   @Override
   protected Void doInBackground(String... params) {
     TmdbMovies tmdbMovies = new TmdbApi(key).getMovies();
-    MovieResultsPage movieResultsPage = tmdbMovies.getPopularMovies(LANG, 1);
-    List<MovieDb> list = movieResultsPage.getResults();
+    for (int page = 1; page < 100; ++page) {
+      MovieResultsPage movieResultsPage = tmdbMovies.getPopularMovies(LANG, page);
+      List<MovieDb> list = movieResultsPage.getResults();
 
-    updateMovies(list);
-
+      updateMovies(list);
+    }
     return null;
   }
 
   private void updateMovies(List<MovieDb> list) {
     for (MovieDb movie : list) {
+      // Check whether such movie existed or not
       Cursor movieCursor = mContext.getContentResolver().query(
               MovieContract.MovieEntry.buildMovieUri(movie.getId()),
               null,
@@ -71,6 +73,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
       movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE, movie.getVoteAverage());
       movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
 
+      // If movie exist, update content
       if (movieCursor != null && movieCursor.moveToFirst()) {
         mContext.getContentResolver().update(
                 MovieContract.MovieEntry.buildMovieUri(movie.getId()),
@@ -80,7 +83,9 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         );
 
         movieCursor.close();
-      } else {
+      }
+      else  // insert movie
+      {
         mContext.getContentResolver().insert(
                 MovieContract.MovieEntry.CONTENT_URI,
                 movieValues
@@ -94,39 +99,81 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
   }
 
   private void updateTrailers(int movId, List<Video> videos) {
-    // TODO : performing update trailers
     if (videos != null) {
       for (Video video : videos) {
+        // Check whether such trailer existed or not
+        Cursor trailerCursor = mContext.getContentResolver().query(
+                MovieContract.TrailerEntry.buildTrailerUri(video.getKey()),
+                null,
+                null,
+                null,
+                null);
+
         ContentValues trailerValues = new ContentValues();
         trailerValues.put(MovieContract.TrailerEntry._ID, video.getKey());
         trailerValues.put(MovieContract.TrailerEntry.COLUMMN_MOV_ID, movId);
 
-        mContext.getContentResolver().insert(
-                MovieContract.TrailerEntry.CONTENT_URI,
-                trailerValues
-        );
+        // If trailer exist, update content
+        if (trailerCursor != null && trailerCursor.moveToFirst()) {
+          mContext.getContentResolver().update(
+                  MovieContract.TrailerEntry.buildTrailerUri(video.getKey()),
+                  trailerValues,
+                  null,
+                  null
+          );
+
+          trailerCursor.close();
+        }
+        else  // insert trailer
+        {
+          mContext.getContentResolver().insert(
+                  MovieContract.TrailerEntry.CONTENT_URI,
+                  trailerValues
+          );
+        }
       }
     }
   }
 
   private void updateReviews(int id) {
-    // TODO : performing update reviews
     TmdbReviews tmdbReviews = new TmdbApi(key).getReviews();
     TmdbReviews.ReviewResultsPage reviewResultsPage = tmdbReviews.getReviews(id, LANG, 1);
     List<Reviews> reviews = reviewResultsPage.getResults();
 
     if (reviews != null) {
       for (Reviews review : reviews) {
+        // Check whether such review existed or not
+        Cursor trailerCursor = mContext.getContentResolver().query(
+                MovieContract.TrailerEntry.buildTrailerUri(review.getId()),
+                null,
+                null,
+                null,
+                null);
+
         ContentValues reviewValues = new ContentValues();
         reviewValues.put(MovieContract.ReviewEntry._ID, review.getId());
         reviewValues.put(MovieContract.ReviewEntry.COLUMMN_MOV_ID, id);
         reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, review.getAuthor());
         reviewValues.put(MovieContract.ReviewEntry.COLUMN_CONTENT, review.getContent());
 
-        mContext.getContentResolver().insert(
-                MovieContract.ReviewEntry.CONTENT_URI,
-                reviewValues
-        );
+        // If review exist, update content
+        if (trailerCursor != null && trailerCursor.moveToFirst()) {
+          mContext.getContentResolver().update(
+                  MovieContract.ReviewEntry.buildReviewUri(review.getId()),
+                  reviewValues,
+                  null,
+                  null
+          );
+
+          trailerCursor.close();
+        }
+        else  // review movie
+        {
+          mContext.getContentResolver().insert(
+                  MovieContract.ReviewEntry.CONTENT_URI,
+                  reviewValues
+          );
+        }
       }
     }
   }

@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by icalF on 5/5/2016.
  */
 public class MovieDbHelper extends SQLiteOpenHelper {
-  private static final int DATABASE_VERSION = 1;
+  private static final int DATABASE_VERSION = 2;
   static final String DATABASE_NAME = "tmdb.db";
 
   public MovieDbHelper(Context context) { super(context, DATABASE_NAME, null, DATABASE_VERSION); }
@@ -28,8 +28,8 @@ public class MovieDbHelper extends SQLiteOpenHelper {
           MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, " +
 
           // the ID of the location entry associated with this weather data
-          MovieContract.MovieEntry.COLUMMN_POSTER_URL + " TEXT NOT NULL, " +
-          MovieContract.MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
+          MovieContract.MovieEntry.COLUMMN_POSTER_URL + " TEXT, " +
+          MovieContract.MovieEntry.COLUMN_OVERVIEW + " TEXT, " +
 
           MovieContract.MovieEntry.COLUMN_RELEASE_DATE + " STRING NOT NULL, " +
           MovieContract.MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +

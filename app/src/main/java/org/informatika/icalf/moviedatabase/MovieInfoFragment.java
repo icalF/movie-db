@@ -1,6 +1,7 @@
 package org.informatika.icalf.moviedatabase;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -36,7 +37,6 @@ public class MovieInfoFragment extends Fragment {
   static final int COL_RUTIME = 7;
 
   private int id = 0;
-  private CursorLoader cursorLoader;
 
   public MovieInfoFragment() {
     // Required empty public constructor
@@ -76,15 +76,21 @@ public class MovieInfoFragment extends Fragment {
       if (title != null) {
         title.setText(cursor.getString(COL_TITLE));
       }
+
       if (overview != null) {
         overview.setText(cursor.getString(COL_OVERVIEW));
+      } else {
+        overview.setText(R.string.no_overview);
       }
+
       if (vote != null) {
         vote.setText(Float.toString(cursor.getFloat(COL_VOTE)) + " / 10.0");
       }
+
       if (year != null) {
         year.setText(MovieContract.getYear(cursor.getString(COL_YEAR)));
       }
+
       if (runtime != null) {
         runtime.setText(Integer.toString(cursor.getInt(COL_RUTIME)) + " min");
       }
@@ -100,7 +106,7 @@ public class MovieInfoFragment extends Fragment {
             null
     );
 
-    if (cursor != null) {
+    if (cursor != null && cursor.getCount() > 0) {
       while (cursor.moveToNext()) {
         ImageView imageView = new ImageView(getContext()) {
           @Override
@@ -128,6 +134,10 @@ public class MovieInfoFragment extends Fragment {
 
         lv.addView(imageView);
       }
+    } else {
+      TextView textView = new TextView(getContext());
+      textView.setText(R.string.no_trailer);
+      lv.addView(textView);
     }
 
     // Load reviews
@@ -140,7 +150,7 @@ public class MovieInfoFragment extends Fragment {
             null
     );
 
-    if (cursor != null) {
+    if (cursor != null && cursor.getCount() > 0) {
       while (cursor.moveToNext()) {
         LinearLayout linearLayout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.list_review, null);
         TextView author = (TextView) linearLayout.findViewById(R.id.author);
@@ -151,14 +161,21 @@ public class MovieInfoFragment extends Fragment {
 
         lv.addView(linearLayout);
       }
+    } else {
+      TextView textView = new TextView(getContext());
+      textView.setText(R.string.no_review);
+      lv.addView(textView);
     }
+
     cursor.close();
 
     return view;
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
+  public void addToFavorite(View view) {
+    getActivity().getSharedPreferences(getString(R.string.sharedpref), Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(String.valueOf(id), true)
+                .commit();
   }
 }

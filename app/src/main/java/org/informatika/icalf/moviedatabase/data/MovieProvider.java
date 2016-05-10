@@ -108,10 +108,10 @@ public class MovieProvider extends ContentProvider {
     matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/trailers", MOVIE_TRAILER);
 
     matcher.addURI(authority, MovieContract.PATH_TRAILER, TRAILER);
-    matcher.addURI(authority, MovieContract.PATH_TRAILER + "/#", TRAILER_ID);
+    matcher.addURI(authority, MovieContract.PATH_TRAILER + "/*", TRAILER_ID);
 
     matcher.addURI(authority, MovieContract.PATH_REVIEW, REVIEW);
-    matcher.addURI(authority, MovieContract.PATH_REVIEW + "/#", REVIEW_ID);
+    matcher.addURI(authority, MovieContract.PATH_REVIEW + "/*", REVIEW_ID);
 
     // 3) Return the new matcher!
     return matcher;
@@ -192,13 +192,27 @@ public class MovieProvider extends ContentProvider {
         break;
       }
 
-      // "/review/*"
+      // "/review"
       case REVIEW: {
         retCursor = mOpenHelper.getReadableDatabase().query(
                 MovieContract.ReviewEntry.TABLE_NAME,
                 projection,
+                null,
+                null,
+                null,
+                null,
+                sortOrder
+        );
+        break;
+      }
+
+      // "/review/*"
+      case REVIEW_ID: {
+        retCursor = mOpenHelper.getReadableDatabase().query(
+                MovieContract.ReviewEntry.TABLE_NAME,
+                projection,
                 MovieContract.ReviewEntry._ID + " = ? ",
-                new String[]{Long.toString(MovieContract.getIdFromUri(uri))},
+                new String[]{(MovieContract.getIdSFromUri(uri))},
                 null,
                 null,
                 sortOrder
@@ -207,12 +221,26 @@ public class MovieProvider extends ContentProvider {
       }
 
       // "/trailer/*"
-      case TRAILER: {
+      case TRAILER_ID: {
         retCursor = mOpenHelper.getReadableDatabase().query(
                 MovieContract.TrailerEntry.TABLE_NAME,
                 projection,
                 MovieContract.TrailerEntry._ID + " = ? ",
-                new String[]{Long.toString(MovieContract.getIdFromUri(uri))},
+                new String[]{(MovieContract.getIdSFromUri(uri))},
+                null,
+                null,
+                sortOrder
+        );
+        break;
+      }
+
+      // "/trailer"
+      case TRAILER: {
+        retCursor = mOpenHelper.getReadableDatabase().query(
+                MovieContract.TrailerEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
                 null,
                 null,
                 sortOrder
@@ -272,7 +300,7 @@ public class MovieProvider extends ContentProvider {
       case TRAILER: {
         long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, values);
         if (_id > 0)
-          returnUri = MovieContract.TrailerEntry.buildTrailerUri(_id);
+          returnUri = MovieContract.TrailerEntry.buildTrailerUri(String.valueOf(_id));
         else
           throw new android.database.SQLException("Failed to insert row into " + uri);
         break;
@@ -280,7 +308,7 @@ public class MovieProvider extends ContentProvider {
       case REVIEW: {
         long _id = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, values);
         if (_id > 0)
-          returnUri = MovieContract.ReviewEntry.buildReviewUri(_id);
+          returnUri = MovieContract.ReviewEntry.buildReviewUri(String.valueOf(_id));
         else
           throw new android.database.SQLException("Failed to insert row into " + uri);
         break;
@@ -328,7 +356,7 @@ public class MovieProvider extends ContentProvider {
     }
     if (rowsDeleted != 0)
       getContext().getContentResolver().notifyChange(uri, null);
-//    db.close();
+    db.close();
 
     return rowsDeleted;
   }
